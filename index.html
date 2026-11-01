@@ -1,13 +1,283 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-mode="dark">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Atmosphere Weather App</title>
-    <link rel="stylesheet" href="style.css">
-    <script src="script.js" defer></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Atmosphere — real-time weather and five-day forecast for any city in the world, powered by OpenWeatherMap.">
+  <meta name="theme-color" content="#11131c">
+  <title>Atmosphere · Weather &amp; Climate Telemetry</title>
+  <link rel="icon" type="image/svg+xml" href="assets/icons/logo.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@200;300;400;500;600;700&display=swap">
+  <link rel="stylesheet" href="css/style.css">
+  <!-- Apply the saved light/dark preference before first paint (no flash). -->
+  <script>
+    try {
+      const mode = localStorage.getItem('atmosphere:colorMode');
+      if (mode === 'light' || mode === 'dark') document.documentElement.dataset.mode = mode;
+    } catch { /* storage unavailable */ }
+  </script>
+  <script type="module" src="js/app.js"></script>
 </head>
-<body>
-    <h1>Atmosphere Weather App</h1>
+<body data-theme="default">
+  <!-- Animated sky behind everything: one gradient layer per weather theme, cross-faded. -->
+  <div class="sky" aria-hidden="true">
+    <div class="sky__layer" data-sky="default"></div>
+    <div class="sky__layer" data-sky="clear"></div>
+    <div class="sky__layer" data-sky="clouds"></div>
+    <div class="sky__layer" data-sky="rain"></div>
+    <div class="sky__layer" data-sky="storm"></div>
+    <div class="sky__layer" data-sky="snow"></div>
+    <div class="sky__layer" data-sky="night"></div>
+    <div class="sky__orb sky__orb--one"></div>
+    <div class="sky__orb sky__orb--two"></div>
+  </div>
+
+  <a class="skip-link" href="#main">Skip to weather</a>
+
+  <div class="app">
+    <!-- ================= Top bar ================= -->
+    <header class="topbar">
+      <a class="brand" href="./" aria-label="Atmosphere home">
+        <img class="brand__logo" src="assets/icons/logo.svg" alt="" width="40" height="40">
+        <span class="brand__name">Atmosphere</span>
+      </a>
+
+      <p class="location-pill" id="location-pill" hidden>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 22s7-6.2 7-12a7 7 0 1 0-14 0c0 5.8 7 12 7 12z" fill="currentColor"/><circle cx="12" cy="10" r="2.6" fill="var(--pin-hole)"/></svg>
+        <span id="location-text">—</span>
+      </p>
+
+      <form class="search" id="search-form" role="search" novalidate autocomplete="off">
+        <label class="sr-only" for="city-input">City name</label>
+        <svg class="search__icon" viewBox="0 0 24 24" aria-hidden="true">
+          <circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="2"/>
+          <path d="M20 20l-3.5-3.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        <input id="city-input" name="city" type="search" inputmode="search"
+               placeholder="Search city…  e.g. Paris, FR"
+               aria-describedby="search-message" maxlength="85" spellcheck="false" required>
+        <button class="search__button" id="search-button" type="submit">
+          <span class="spinner spinner--small" aria-hidden="true"></span>
+          <span class="search__button-label">Search</span>
+        </button>
+      </form>
+
+      <div class="controls">
+        <div class="segmented" role="group" aria-label="Temperature unit">
+          <button type="button" class="segmented__btn" data-unit="C" aria-pressed="true">°C</button>
+          <button type="button" class="segmented__btn" data-unit="F" aria-pressed="false">°F</button>
+        </div>
+        <button type="button" class="mode-toggle" id="mode-toggle" aria-pressed="true" aria-label="Dark mode">
+          <svg class="mode-toggle__sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M4.9 19.1l1.8-1.8M17.3 6.7l1.8-1.8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          <svg class="mode-toggle__moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z" fill="currentColor"/></svg>
+        </button>
+        <p class="offline-badge" id="connection-status" hidden><span class="dot" aria-hidden="true"></span>Offline</p>
+      </div>
+    </header>
+
+    <div class="search-message" id="search-message" role="alert" aria-live="assertive" hidden></div>
+
+    <main class="main" id="main" tabindex="-1" aria-busy="false">
+      <p class="sr-only" id="live-status" aria-live="polite"></p>
+
+      <!-- ================= Empty / setup / loading states ================= -->
+      <section class="state" id="empty-state" aria-labelledby="empty-title">
+        <img src="assets/icons/partly-cloudy.svg" alt="" width="96" height="96" class="state__art">
+        <h1 class="state__title" id="empty-title">Where are we forecasting today?</h1>
+        <p class="state__text">Search for any city worldwide to see live conditions, an hourly outlook and a five-day forecast.</p>
+        <div class="chips" role="group" aria-label="Quick searches">
+          <button type="button" class="chip" data-city="Johannesburg">Johannesburg</button>
+          <button type="button" class="chip" data-city="London">London</button>
+          <button type="button" class="chip" data-city="Tokyo">Tokyo</button>
+          <button type="button" class="chip" data-city="New York">New York</button>
+        </div>
+      </section>
+
+      <section class="state" id="setup-state" aria-labelledby="setup-title" hidden>
+        <img src="assets/icons/key.svg" alt="" width="72" height="72" class="state__art">
+        <h1 class="state__title" id="setup-title">Add your OpenWeatherMap API key</h1>
+        <p class="state__text">
+          This app needs a free OpenWeatherMap key to fetch live data. Copy <code>.env.example</code> to <code>.env</code>,
+          paste your key, then start the app with <code>npm start</code>. Full steps are in the README.
+        </p>
+      </section>
+
+      <section class="state" id="loading-state" hidden aria-label="Loading weather">
+        <div class="spinner" aria-hidden="true"></div>
+        <p class="state__text">Fetching live telemetry…</p>
+      </section>
+
+      <!-- ================= Dashboard ================= -->
+      <div class="dashboard" id="dashboard" hidden>
+
+        <!-- Hero: current conditions -->
+        <article class="card hero" aria-labelledby="current-city">
+          <div class="hero__fx" aria-hidden="true"></div>
+          <div class="hero__content">
+            <header class="hero__head">
+              <div>
+                <h2 class="hero__city" id="current-city">—</h2>
+                <p class="hero__time"><time id="current-time">—</time></p>
+                <p class="hero__tz" id="current-tz"></p>
+              </div>
+              <span class="badge" id="updated-badge" title="Time the observation was recorded">Updated —</span>
+            </header>
+
+            <div class="hero__main">
+              <img class="hero__icon" id="current-icon" src="assets/icons/partly-cloudy.svg" alt="" width="132" height="132">
+              <p class="hero__temp"><span id="current-temp">—</span><span class="hero__unit" data-unit-label>°C</span></p>
+              <p class="hero__desc" id="current-desc">—</p>
+            </div>
+
+            <p class="hero__summary" id="current-summary"></p>
+
+            <dl class="hero__stats">
+              <div><dt>Feels like</dt><dd id="current-feels">—</dd></div>
+              <div><dt>High</dt><dd id="current-high">—</dd></div>
+              <div><dt>Low</dt><dd id="current-low">—</dd></div>
+            </dl>
+          </div>
+        </article>
+
+        <!-- Hourly strip -->
+        <section class="card panel hourly" aria-labelledby="hourly-title">
+          <header class="panel__head">
+            <h2 class="panel__title" id="hourly-title">
+              <img src="assets/icons/clock.svg" alt="" width="18" height="18">Hourly forecast
+              <span class="panel__scope" id="hourly-scope">· Next 24 hours</span>
+            </h2>
+            <button type="button" class="link-button" id="hourly-reset" hidden>Back to next 24h</button>
+          </header>
+          <ol class="hourly__list" id="hourly-list"></ol>
+        </section>
+
+        <!-- Five-day tiles -->
+        <section class="card panel daily" aria-labelledby="forecast-title">
+          <header class="panel__head">
+            <h2 class="panel__title" id="forecast-title">
+              <img src="assets/icons/calendar.svg" alt="" width="18" height="18">5-day forecast
+            </h2>
+            <p class="panel__note">Select a day for its hourly detail</p>
+          </header>
+          <ol class="daily__list" id="forecast-list"></ol>
+        </section>
+
+        <!-- Chance of rain bars -->
+        <section class="card panel rain" aria-labelledby="rain-title">
+          <header class="panel__head">
+            <h2 class="panel__title" id="rain-title">
+              <img src="assets/icons/umbrella.svg" alt="" width="18" height="18">Chance of rain
+            </h2>
+            <p class="panel__note" id="rain-scope">Next 24 hours</p>
+          </header>
+          <div class="rain-chart" id="rain-chart"></div>
+        </section>
+
+        <!-- Highlights -->
+        <section class="highlights" aria-labelledby="highlights-title">
+          <h2 class="section-title" id="highlights-title">Today's highlights</h2>
+          <ul class="highlights__grid">
+            <li class="card tile">
+              <h3 class="tile__label"><img src="assets/icons/thermometer.svg" alt="" width="18" height="18">Feels like</h3>
+              <p class="tile__value" id="metric-feels">—</p>
+              <p class="tile__note" id="metric-feels-note">—</p>
+            </li>
+            <li class="card tile">
+              <h3 class="tile__label"><img src="assets/icons/humidity.svg" alt="" width="18" height="18">Humidity</h3>
+              <p class="tile__value" id="metric-humidity">—</p>
+              <span class="meter" aria-hidden="true"><span id="metric-humidity-bar"></span></span>
+              <p class="tile__note" id="metric-dew">—</p>
+            </li>
+            <li class="card tile">
+              <h3 class="tile__label"><img src="assets/icons/rain.svg" alt="" width="18" height="18">Precipitation</h3>
+              <p class="tile__value" id="metric-precip">—</p>
+              <p class="tile__note" id="metric-precip-note">—</p>
+            </li>
+            <li class="card tile">
+              <h3 class="tile__label"><img src="assets/icons/visibility.svg" alt="" width="18" height="18">Visibility</h3>
+              <p class="tile__value" id="metric-visibility">—</p>
+              <p class="tile__note" id="metric-visibility-sub">—</p>
+            </li>
+            <li class="card tile">
+              <h3 class="tile__label"><img src="assets/icons/pressure.svg" alt="" width="18" height="18">Pressure</h3>
+              <p class="tile__value" id="metric-pressure">—</p>
+              <p class="tile__note" id="metric-pressure-sub">—</p>
+            </li>
+            <li class="card tile tile--wind">
+              <div>
+                <h3 class="tile__label"><img src="assets/icons/wind.svg" alt="" width="18" height="18">Wind</h3>
+                <p class="tile__value" id="metric-wind">—</p>
+                <p class="tile__note" id="metric-wind-note">—</p>
+                <p class="tile__note" id="metric-wind-gust">—</p>
+              </div>
+              <svg class="compass" id="compass" viewBox="0 0 120 120" role="img" aria-label="Wind direction">
+                <circle cx="60" cy="60" r="54" class="compass__ring"/>
+                <g class="compass__ticks" id="compass-ticks"></g>
+                <text x="60" y="20" class="compass__cardinal">N</text>
+                <text x="102" y="64" class="compass__cardinal">E</text>
+                <text x="60" y="108" class="compass__cardinal">S</text>
+                <text x="18" y="64" class="compass__cardinal">W</text>
+                <g class="compass__needle" id="compass-needle">
+                  <path d="M60 26 L66 60 L60 56 L54 60 Z" class="compass__head"/>
+                  <path d="M60 94 L66 60 L60 64 L54 60 Z" class="compass__tail"/>
+                </g>
+                <circle cx="60" cy="60" r="4" class="compass__hub"/>
+              </svg>
+            </li>
+            <li class="card tile tile--wide tile--sun">
+              <div class="sun__times">
+                <div>
+                  <h3 class="tile__label"><img src="assets/icons/sunrise.svg" alt="" width="18" height="18">Sunrise</h3>
+                  <p class="tile__value" id="metric-sunrise">—</p>
+                </div>
+                <div>
+                  <h3 class="tile__label"><img src="assets/icons/sunset.svg" alt="" width="18" height="18">Sunset</h3>
+                  <p class="tile__value" id="metric-sunset">—</p>
+                </div>
+              </div>
+              <svg class="sun-arc" viewBox="0 0 200 92" role="img" aria-labelledby="metric-daylight">
+                <path d="M12 82 A88 70 0 0 1 188 82" class="sun-arc__track"/>
+                <path d="M12 82 A88 70 0 0 1 188 82" class="sun-arc__done" id="sun-arc-done" pathLength="100"/>
+                <line x1="4" y1="82" x2="196" y2="82" class="sun-arc__horizon"/>
+                <circle r="7" class="sun-arc__sun" id="sun-arc-sun" cx="12" cy="82"/>
+              </svg>
+              <p class="tile__note" id="metric-daylight">—</p>
+            </li>
+          </ul>
+        </section>
+
+        <!-- Overview line chart -->
+        <section class="card panel overview" aria-labelledby="overview-title">
+          <header class="panel__head">
+            <h2 class="panel__title panel__title--big" id="overview-title">Overview</h2>
+            <div class="tabs" role="tablist" aria-label="Overview metric">
+              <button type="button" role="tab" class="tabs__tab" data-metric="temperature" aria-selected="true" aria-controls="overview-chart">Temperature</button>
+              <button type="button" role="tab" class="tabs__tab" data-metric="humidity" aria-selected="false" aria-controls="overview-chart" tabindex="-1">Humidity</button>
+              <button type="button" role="tab" class="tabs__tab" data-metric="pressure" aria-selected="false" aria-controls="overview-chart" tabindex="-1">Pressure</button>
+              <button type="button" role="tab" class="tabs__tab" data-metric="wind" aria-selected="false" aria-controls="overview-chart" tabindex="-1">Wind</button>
+            </div>
+          </header>
+          <div class="overview__chart" id="overview-chart" role="tabpanel" aria-labelledby="overview-title"></div>
+        </section>
+
+        <!-- Other large cities -->
+        <section class="card panel cities" aria-labelledby="cities-title">
+          <header class="panel__head">
+            <h2 class="panel__title" id="cities-title">
+              <img src="assets/icons/globe.svg" alt="" width="18" height="18">Other large cities
+            </h2>
+          </header>
+          <ul class="cities__list" id="cities-list" aria-busy="true"></ul>
+        </section>
+      </div>
+    </main>
+
+    <footer class="footer">
+      <p>Weather data by <a href="https://openweathermap.org/" target="_blank" rel="noopener noreferrer">OpenWeatherMap</a> · Data units: °C, m/s, hPa</p>
+      <p>Built with HTML, CSS &amp; vanilla JavaScript</p>
+    </footer>
+  </div>
 </body>
 </html>

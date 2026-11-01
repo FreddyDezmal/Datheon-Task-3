@@ -1,0 +1,17 @@
+# Netlify deployment (static site + serverless API proxy).
+# Set OPENWEATHER_API_KEY under Site configuration → Environment variables.
+
+[build]
+  publish = "."
+  functions = "netlify/functions"
+  # Writes js/env.js in proxy mode — it contains NO API key.
+  command = "node scripts/generate-env.js --proxy"
+
+[functions]
+  node_bundler = "esbuild"
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"

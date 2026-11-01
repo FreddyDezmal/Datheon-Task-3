@@ -1,0 +1,18 @@
+{
+  "name": "atmosphere-weather-app",
+  "version": "1.0.0",
+  "description": "Real-time weather forecast and climate telemetry dashboard built with vanilla JavaScript and the OpenWeatherMap API.",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node scripts/dev-server.js",
+    "env": "node scripts/generate-env.js",
+    "build:netlify": "node scripts/generate-env.js --proxy",
+    "test": "node --test tests/weather.test.js tests/api.test.js tests/widgets.test.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "keywords": ["weather", "openweathermap", "vanilla-js", "dashboard", "fetch-api"],
+  "license": "MIT"
+}

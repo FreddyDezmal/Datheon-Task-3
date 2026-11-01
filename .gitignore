@@ -1,3 +1,17 @@
+# --- Secrets: never commit these ---------------------------------------------
+.env
+.env.*
+!.env.example
+# Generated from .env by scripts/generate-env.js — contains the API key.
+js/env.js
+
+# --- Editor / OS ---------------------------------------------------------------
 .vscode/
+.idea/
 .DS_Store
-config.js
+Thumbs.db
+
+# --- Tooling -------------------------------------------------------------------
+node_modules/
+.netlify/
+*.log

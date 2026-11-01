@@ -1,196 +1,346 @@
-# MASTER DEVELOPMENT PROMPT: TASK 3 — REAL-TIME WEATHER FORECAST & CLIMATE TELEMETRY APP
+# ROLE & EXPERTISE
 
-Act as my senior software engineering mentor and technical project supervisor throughout my Datheon Web Development Internship.
+Act as a Senior Frontend Developer, UI/UX Designer, JavaScript Engineer, and API Integration Specialist.
 
-We are developing Task 3: **Real-Time Weather Forecast & Climate Telemetry App**.
+Your task is to design and develop a production-quality, fully functional Real-Time Weather Forecast & Climate Telemetry Web Application.
 
-Your responsibility is to guide me through the entire development process using a structured, milestone-based approach.
+The application must demonstrate professional frontend development practices, asynchronous API integration, responsive interface design, dynamic rendering, and robust error handling.
 
-## PROJECT OBJECTIVE
+This is an intermediate-level development assessment. Prioritize clean architecture, functional completeness, usability, accessibility, and polished visual design.
 
-Build a responsive, functional weather dashboard that allows users to search for any global city and retrieve real-time weather information using a third-party REST API (OpenWeatherMap).
+# 1. DECONSTRUCT — PROJECT REQUIREMENTS
 
-The application must display:
+## Project Objective
 
-- Current temperature.
-- Weather conditions with dynamic icons.
-- Humidity.
+Build a live weather dashboard that allows users to search for any city worldwide and retrieve its current weather conditions and a five-day weather forecast.
+
+The application must retrieve real weather information from OpenWeatherMap through asynchronous REST API requests.
+
+## Required Technologies
+
+- HTML5 for semantic structure.
+- CSS3 for styling, animations, Flexbox, and responsive layouts.
+- Vanilla JavaScript (ES6+) for application logic.
+- Fetch API with async/await for asynchronous requests.
+- OpenWeatherMap API for weather information.
+- Local storage for optional persistence of the user's last searched city.
+
+Do not use React, Vue, Angular, or other frontend frameworks. The objective is to demonstrate proficiency in vanilla JavaScript.
+
+# 2. DIAGNOSE — TECHNICAL PLANNING
+
+Before writing code:
+
+1. Analyze the functional requirements.
+2. Identify the API endpoints required.
+3. Plan the application architecture.
+4. Determine the required state-management approach.
+5. Identify possible API, network, and input-validation errors.
+6. Establish a responsive design strategy.
+7. Ensure API credentials are handled securely.
+
+Use the following API endpoints:
+
+Current Weather:
+https://api.openweathermap.org/data/2.5/weather
+
+Five-Day Forecast:
+https://api.openweathermap.org/data/2.5/forecast
+
+Use metric units (Celsius, meters per second, and hPa).
+
+Important: OpenWeatherMap API access requires a valid API key. Do not invent credentials or assume the key is active. Provide clear setup instructions and an environment configuration approach. Never commit API keys to a public GitHub repository.
+
+# 3. DEVELOP — APPLICATION FEATURES
+
+## A. Weather Search Interface
+
+Create an intuitive search interface containing:
+
+- Application logo or weather-themed branding.
+- Search input for global city searches.
+- Search button.
+- Enter-key submission support.
+- Search loading indicator.
+- Clear feedback for empty or invalid searches.
+- Last searched city persistence.
+
+The user must be able to search for cities worldwide.
+
+## B. Current Weather Dashboard
+
+Display the following information:
+
+- City name and country.
+- Current local date and time.
+- Current temperature in Celsius.
+- Weather description.
+- Dynamic weather icon.
+- Feels-like temperature.
+- Minimum and maximum temperature.
+- Humidity percentage.
 - Wind speed.
 - Atmospheric pressure.
-- Five-day temperature forecast.
-- Dynamic weather-dependent background gradients.
-- Loading indicators.
-- Graceful error handling for invalid cities and failed requests.
-- Responsive layouts for mobile and desktop.
+- Visibility.
+- Sunrise and sunset times.
 
-## TECHNOLOGY STACK
+Use the actual API response rather than hardcoded weather values.
 
-- HTML5
-- CSS3
-- JavaScript (ES6+)
-- Fetch API
-- Async/Await
-- OpenWeatherMap REST API
-- CSS Flexbox and responsive design principles.
-- Git and GitHub for version control.
+## C. Dynamic Weather Visualization
 
-## DEVELOPMENT APPROACH
+The interface must visually respond to the retrieved weather conditions.
 
-Divide the project into manageable milestones.
+Implement different background gradients or visual themes for:
 
-For EVERY milestone, follow this structure:
+- Sunny / clear skies: warm, bright gradients.
+- Cloudy / overcast: muted grey-blue gradients.
+- Rainy: cool blue gradients.
+- Thunderstorms: dark dramatic gradients.
+- Snow: icy blue and white gradients.
+- Nighttime: deep navy and purple gradients.
 
-1. **Milestone overview:** Explain what we are building and why it matters.
-2. **Learning objectives:** Identify the technical concepts I should understand.
-3. **Goals:** Break the milestone into small, achievable tasks.
-4. **Implementation:** Guide me through the code step by step.
-5. **Code explanations:** Explain what each important section does and why we need it.
-6. **Testing:** Give me practical tests to verify my implementation.
-7. **Expected outcome:** Describe what the application should look like or do when the milestone is complete.
-8. **Checkpoint:** Review my progress before allowing us to continue.
+Use appropriate weather icons from OpenWeatherMap's icon system.
 
-## PROPOSED DEVELOPMENT MILESTONES
+The visual theme should update automatically whenever a new city is searched.
 
-### MILESTONE 1 — Project Planning and Environment Setup
-Goals:
-- Understand the project requirements.
-- Establish the folder structure.
-- Create the HTML, CSS and JavaScript files.
-- Set up the development environment.
-- Understand how the three files communicate.
+## D. Five-Day Weather Forecast
 
-Deliverable: A clean, organized project foundation.
+Create a five-day forecast section using the OpenWeatherMap five-day forecast endpoint.
 
-### MILESTONE 2 — HTML Structure and Dashboard Layout
-Goals:
-- Build the application header.
-- Create the city search interface.
-- Design the current weather display section.
-- Create the weather metrics section.
-- Establish the five-day forecast container.
-- Add semantic HTML and accessible labels.
+Each forecast card should display:
 
-Deliverable: A complete static dashboard structure.
+- Day of the week.
+- Weather icon.
+- Weather description.
+- Maximum temperature.
+- Minimum temperature.
 
-### MILESTONE 3 — CSS Styling and Responsive Design
-Goals:
-- Establish the visual design system.
-- Apply typography, spacing, colours and gradients.
-- Style the weather dashboard using Flexbox and CSS Grid where appropriate.
-- Create responsive layouts.
-- Add hover states and transitions.
+Important implementation detail:
 
-Deliverable: A polished, responsive dashboard using placeholder weather data.
+The forecast API returns data in three-hour intervals. Group the forecast entries by calendar day and calculate representative daily temperatures using the available forecast data.
 
-### MILESTONE 4 — OpenWeatherMap API Integration
-Goals:
-- Understand REST APIs and HTTP requests.
-- Register for an OpenWeatherMap account.
-- Obtain and configure an API key.
-- Understand API endpoints and query parameters.
-- Learn how JSON responses are structured.
-- Use the Fetch API to retrieve current weather data.
-- Display actual weather information dynamically.
+Avoid displaying five duplicate forecast cards for individual time intervals.
 
-Deliverable: A dashboard displaying real weather data.
+Use JavaScript Array.map() to dynamically render the forecast cards.
 
-### MILESTONE 5 — Asynchronous JavaScript and Error Handling
-Goals:
-- Understand Promises.
-- Learn async and await.
-- Implement try/catch/finally.
-- Handle unsuccessful HTTP responses.
-- Handle invalid city searches.
-- Handle invalid API keys, network errors and request timeouts.
-- Implement loading indicators.
-- Prevent confusing UI behaviour during requests.
+## E. Loading States and Error Handling
 
-Deliverable: Reliable API communication with graceful error handling.
+Implement comprehensive error handling.
 
-### MILESTONE 6 — Five-Day Weather Forecast
-Goals:
-- Retrieve forecast information.
-- Understand arrays and nested JSON objects.
-- Use Array.map(), filter() and reduce() where appropriate.
-- Group forecast entries by date.
-- Calculate daily high and low temperatures.
-- Dynamically generate forecast cards.
+Loading states:
+- Display an animated loading spinner while fetching data.
+- Disable repeated search submissions while a request is processing.
+- Display appropriate loading feedback.
 
-Deliverable: A functional five-day forecast.
+Error states:
+- Invalid city name.
+- Empty search input.
+- Network connectivity failure.
+- API request failure.
+- Invalid or missing API key.
+- API rate-limit errors.
+- Unexpected API response.
 
-### MILESTONE 7 — Dynamic Weather UI and Visual Enhancements
-Goals:
-- Interpret weather condition codes.
-- Display appropriate weather icons.
-- Change background gradients according to weather conditions.
-- Account for daytime and nighttime conditions.
-- Add subtle animations and visual feedback.
+Display friendly, informative error messages.
 
-Deliverable: An interactive dashboard that responds visually to weather conditions.
+Never allow a failed request to crash the application.
 
-### MILESTONE 8 — Testing, Debugging and Optimization
-Goals:
-- Test multiple international cities.
-- Test invalid city names.
-- Test missing and invalid API keys.
-- Test network failures.
-- Test mobile and desktop layouts.
-- Inspect browser console errors.
-- Improve code readability and performance.
+If a new search fails, do not silently replace previously retrieved weather information with fabricated data.
 
-Deliverable: A stable and thoroughly tested application.
+## F. User Experience Enhancements
 
-### MILESTONE 9 — GitHub, Deployment and Documentation
-Goals:
-- Prepare a professional README.
-- Document installation and API configuration.
-- Explain the project architecture.
-- Add screenshots.
-- Create a public GitHub repository.
-- Deploy the application using Vercel or another suitable platform.
-- Protect API credentials using an appropriate backend proxy before public production deployment.
+Implement the following where practical:
 
-Deliverable: A documented, publicly accessible portfolio project.
+- Smooth transitions between weather themes.
+- Responsive forecast cards.
+- Hover effects on interactive elements.
+- Subtle loading animations.
+- Search input focus styling.
+- Accessible labels and keyboard navigation.
+- Clear empty states.
+- Mobile-friendly layouts.
 
-### MILESTONE 10 — Final Review and Datheon Submission
-Goals:
-- Conduct a final requirements review.
-- Verify all required features.
-- Confirm the live deployment works.
-- Verify the GitHub repository is publicly accessible.
-- Prepare a LinkedIn project walkthrough.
-- Document completed work and lessons learned.
-- Prepare the project for Datheon verification.
+# 4. DELIVER — DESIGN AND IMPLEMENTATION
 
-Deliverable: A completed, submission-ready Task 3 project.
+## Visual Design Direction
 
-## IMPORTANT MENTORING RULES
+Create a premium, modern weather dashboard.
 
-1. Do not rush through milestones.
-2. Never implement the entire application at once.
-3. Only introduce concepts when they become relevant to the current milestone.
-4. Explain unfamiliar concepts in beginner-friendly language.
-5. Do not assume I understand code simply because you have provided it.
-6. Encourage me to write code independently wherever possible.
-7. Provide code examples in manageable sections rather than overwhelming blocks.
-8. Review my code and explain mistakes constructively.
-9. Give me small practical exercises when appropriate.
-10. Do not advance to another milestone until I understand and approve the current milestone.
-11. Keep track of completed milestones and outstanding goals.
-12. Distinguish between features that are required by the assignment and optional enhancements.
+Design inspiration:
+- Modern SaaS dashboards.
+- Glassmorphism.
+- Minimalist weather applications.
+- Soft gradients.
+- Clean typography.
+- Rounded cards.
+- Subtle shadows.
+- Spacious layouts.
 
-## WORKING STYLE
+Suggested layout:
 
-Treat this as a collaborative learning experience.
+1. Header with branding.
+2. City search section.
+3. Main current-weather display.
+4. Weather metrics grid.
+5. Five-day forecast section.
+6. Small footer with API attribution.
 
-I want to understand the reasoning behind every important implementation decision.
+Desktop:
+- Centered dashboard with a maximum content width.
+- Flexible two-column layout where appropriate.
+- Forecast cards displayed horizontally.
 
-If I encounter an error, help me debug it systematically instead of immediately replacing my code with a complete solution.
+Tablet:
+- Adaptable two-column or stacked layout.
 
-At the beginning of each milestone, explain what we are about to accomplish.
+Mobile:
+- Single-column layout.
+- Full-width search input.
+- Readable weather metrics.
+- Horizontally scrollable forecast cards if necessary.
+- No horizontal page overflow.
 
-At the end of each milestone, evaluate my work against its goals and ask whether I am ready to proceed.
+## PROJECT STRUCTURE
 
-**Our priority is learning, understanding, building independently and producing professional-quality work — not rushing to the final deliverable.**
+Organize the project into a maintainable structure:
 
-Begin with Milestone 1 only. Do not start implementing Milestone 2 until I have completed and approved Milestone 1.
+weather-telemetry-app/
+│
+├── index.html
+├── css/
+│   └── style.css
+├── js/
+│   ├── config.js
+│   ├── api.js
+│   ├── weather.js
+│   └── app.js
+├── assets/
+│   └── icons/
+├── .gitignore
+├── .env.example
+└── README.md
+
+For a static frontend application, explain that environment variables are not automatically protected in browser code. Provide a secure deployment option using a backend API proxy or serverless function if credentials must remain private.
+
+Ensure the application can be run locally using a development server.
+
+## JAVASCRIPT ARCHITECTURE
+
+Separate responsibilities:
+
+config.js:
+- API configuration.
+- Units and application constants.
+
+api.js:
+- Asynchronous Fetch API functions.
+- Current weather requests.
+- Five-day forecast requests.
+- HTTP status validation.
+- API error handling.
+
+weather.js:
+- Weather data processing.
+- Forecast grouping.
+- Temperature calculations.
+- Dynamic weather theme selection.
+- Weather icon mapping.
+
+app.js:
+- DOM manipulation.
+- Search event listeners.
+- Loading states.
+- Error messages.
+- Rendering current weather.
+- Rendering forecast cards.
+
+Use async/await, try/catch, reusable functions, and descriptive variable names.
+
+Use Promise.all() where appropriate to retrieve current weather and forecast data efficiently.
+
+Prevent race conditions caused by multiple searches by disabling submissions or using request cancellation with AbortController.
+
+# 5. TESTING AND QUALITY ASSURANCE
+
+Test the application against the following scenarios:
+
+1. Search for Johannesburg.
+2. Search for London.
+3. Search for Tokyo.
+4. Search for New York.
+5. Search for a nonexistent city.
+6. Submit an empty search.
+7. Simulate a network failure.
+8. Test an invalid API key.
+9. Test the application on mobile screen dimensions.
+10. Verify that weather themes update correctly.
+11. Verify that the five-day forecast displays distinct calendar days.
+12. Confirm that no API keys are exposed in the public repository.
+
+Ensure all essential features work before declaring the project complete.
+
+# 6. DELIVERABLES
+
+Provide:
+
+1. Complete functional source code for every project file.
+2. A polished, responsive weather dashboard.
+3. Working global city search.
+4. Real-time weather information.
+5. Dynamic weather icons and backgrounds.
+6. Five-day forecast.
+7. Loading indicators and robust error handling.
+8. API configuration instructions.
+9. Comprehensive README.md.
+10. Installation and local development instructions.
+11. API documentation and architecture explanation.
+12. GitHub deployment instructions.
+13. Production deployment guidance.
+
+## README REQUIREMENTS
+
+Include:
+
+- Project overview.
+- Features.
+- Technologies used.
+- Screenshots section.
+- Project structure.
+- API registration instructions.
+- API configuration.
+- Local installation instructions.
+- How to run the application.
+- API endpoints.
+- Error-handling explanation.
+- Architecture overview.
+- Deployment instructions.
+
+# 7. FINAL ACCEPTANCE CRITERIA
+
+The project is only complete when:
+
+- A user can search for global cities.
+- Real weather data is successfully retrieved.
+- Weather conditions and icons update dynamically.
+- Current weather metrics display correctly.
+- Five forecast days are displayed.
+- Invalid searches are handled gracefully.
+- Loading states function correctly.
+- Network and API errors are handled.
+- The interface works across desktop, tablet, and mobile.
+- The source code is organized and documented.
+- API credentials are not exposed in the public GitHub repository.
+
+# FINAL INSTRUCTION
+
+Do not provide a superficial mockup or a static demonstration.
+
+Build a genuinely functional application with real API integration.
+
+Generate the complete project source code, explain the purpose of each file, and provide clear instructions for configuring the API key and running the application.
+
+Prioritize functionality first, followed by visual refinement and production readiness.
+
+If a feature cannot be implemented or verified, explicitly explain the limitation rather than claiming it works.
+
+The final result must be suitable for a professional internship portfolio and public GitHub submission.
