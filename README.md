@@ -2,6 +2,8 @@
 
 A real-time weather dashboard built with **HTML5, CSS3 and vanilla JavaScript (ES6+)**. Search any city in the world for its live conditions and a five-day forecast. Data comes from the [OpenWeatherMap](https://openweathermap.org/) REST API.
 
+**Live demo:** <https://weather-forecast-t3.netlify.app>
+
 No frameworks and no build step. The browser code has no runtime dependencies. Node.js is used only for the optional dev server, the unit tests and the deployment helper.
 
 ---
@@ -77,15 +79,19 @@ The layout is a dark (or light) dashboard over a sky that reacts to the weather.
 
 ## Screenshots
 
-> These screenshots were taken during automated testing, with **mocked API responses**, so the values (and the identical weather icons) are sample data. Once your key is configured, replace them with screenshots of live data.
+These screenshots show live OpenWeatherMap data, taken from the deployed site.
 
-| Dark mode · clear | Dark mode · rain |
-|---|---|
-| ![Clear theme](docs/screenshots/desktop-clear.jpg) | ![Rain theme](docs/screenshots/desktop-rain.jpg) |
+**Light mode, clear sky (Paris).** Warm "clear" theme, hourly strip and five-day tiles.
 
-| Light mode · snow | Mobile · night |
-|---|---|
-| ![Snow theme, light mode](docs/screenshots/desktop-snow-light.jpg) | ![Mobile night theme](docs/screenshots/mobile-night.jpg) |
+![Paris, clear sky, light mode](docs/screenshots/desktop-clear.jpg)
+
+**Light mode, overcast (Belokurikha).** Muted "clouds" theme. The forecast includes snow and a 100% chance of precipitation.
+
+![Belokurikha, overcast, light mode](docs/screenshots/desktop-clouds.jpg)
+
+**Mobile, dark mode, night (New Orleans).** Night theme with twinkling stars and the generated 24-hour summary.
+
+<img src="docs/screenshots/mobile-night.jpg" alt="New Orleans at night on mobile, dark mode" width="320">
 
 ---
 
@@ -319,7 +325,7 @@ npm test
 | 11 | Inspect forecast cards | Five different dates |
 | 12 | `git status` / `git ls-files` | `.env` and `js/env.js` are **not** listed |
 
-These scenarios were also automated with Playwright in headless Chromium against mocked API responses, together with checks for every widget: day selection, tabs, tooltips, the °F toggle, light mode and city cards (47/47 checks passed). See [Known limitations](#known-limitations) about live-API verification.
+These scenarios were also automated with Playwright in headless Chromium against mocked API responses, together with checks for every widget: day selection, tabs, tooltips, the °F toggle, light mode and city cards (47/47 checks passed). The app has since been run against the live API on the Netlify deployment; see [Screenshots](#screenshots).
 
 ---
 
@@ -365,7 +371,6 @@ For a portfolio link, use Netlify (above) and keep GitHub for the source code.
 
 ## Known limitations
 
-- **Live API not verified during development.** The sandbox this project was built in could not reach `api.openweathermap.org`. All behaviour was verified against realistic mocked responses, both in unit tests and in a headless-browser run. The request URLs, parameters and response fields follow OpenWeatherMap's documented 2.5 API. Run checks 1–4 above with your own key to confirm live behaviour.
 - **The last forecast day is usually partial.** The free forecast covers about 120 hours from the next 3-hour slot. The fifth day therefore often has only a few slots, so its high/low may understate the true daily range. The card is labelled "Partial day" in that case.
 - **City-name search is ambiguous for duplicate names.** "Springfield" returns OpenWeatherMap's best match. Add a country code (`Springfield, US`) or a state (`Springfield, IL, US`) to narrow it.
 - **"Updated" time** is the observation time OpenWeatherMap reports (`dt`), which can be 10–60 minutes old on the free plan.
